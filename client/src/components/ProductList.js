@@ -5,14 +5,19 @@ import { connect } from 'react-redux';
 import { getProducts, deleteProduct } from '../actions/productActions'
 import PropTypes from 'prop-types';
 
-class ProductList extends Component {    
+class ProductList extends Component {   
+    static propTypes = {
+    getProducts: PropTypes.func.isRequired,
+    product: PropTypes.object.isRequired,
+    isAuthenticated: PropTypes.bool
+    };
     componentDidMount() {
         this.props.getProducts();
     }
-    onDeleteClick = (id) => {
+    onDeleteClick = id => {
         this.props.deleteProduct(id);
     };
-    render() {
+    render(){
         const { products } = this.props.product;
         return(
             <Container>
@@ -21,12 +26,12 @@ class ProductList extends Component {
                         {products.map(({ _id, name }) => (
                             <CSSTransition key={_id} timeout={500} classNames="fade">
                                 <ListGroupItem>
-                                    <Button 
+                                    { this.props.isAuthenticated ? <Button
                                     className="remove-btn"
                                     color="danger"
                                     size="sm"
-                                    onClick={this.onDeleteClick.bind(this, _id)}
-                                    >&times;</Button>
+                                    onClick={this.onDeleteClick.bind(this,_id)}
+                                    >&times;</Button> : ""}
                                     {name}
                                 </ListGroupItem>
                             </CSSTransition>
@@ -35,15 +40,11 @@ class ProductList extends Component {
                 </ListGroup>
             </Container>
         );
-    }
 }
-ProductList.propTypes = {
-    getProducts: PropTypes.func.isRequired,
-    product: PropTypes.object.isRequired
 }
-
-const mapStateToProps = (state) => ({
-    product: state.product
+const mapStateToProps = state => ({
+    product: state.product,
+    isAuthenticated: state.auth.isAuthenticated
 });
 
 export default connect(mapStateToProps, { getProducts, deleteProduct })(ProductList);
